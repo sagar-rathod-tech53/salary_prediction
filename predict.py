@@ -1,30 +1,30 @@
 import os
-import streamlit as st
 import numpy as np
 import joblib
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Load models
 model = joblib.load(os.path.join(BASE_DIR, "models", "random_forest.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "models", "scaler.pkl"))
 columns = joblib.load(os.path.join(BASE_DIR, "models", "columns.pkl"))
 
-st.title("💼 Salary Prediction App")
+print("💼 Salary Prediction System (CLI)")
 
 # Inputs
-age = st.number_input("Age", 18, 65)
-experience = st.number_input("Years of Experience", 0, 40)
+age = float(input("Enter Age: "))
+experience = float(input("Enter Years of Experience: "))
 
-gender = st.selectbox("Gender", ["Male", "Female"])
-education = st.selectbox("Education", ["Bachelor", "Master", "PhD"])
+gender = input("Enter Gender (Male/Female): ")
+education = input("Enter Education (Bachelor/Master/PhD): ")
 
 # Encoding
 gender_val = 1 if gender == "Male" else 0
 
 edu_map = {"Bachelor": 0, "Master": 1, "PhD": 2}
-education_val = edu_map[education]
+education_val = edu_map.get(education, 0)
 
-# Create feature vector
+# Create empty vector
 input_data = np.zeros(len(columns))
 input_dict = dict(zip(columns, input_data))
 
@@ -41,13 +41,13 @@ if "Gender" in input_dict:
 if "Education Level" in input_dict:
     input_dict["Education Level"] = education_val
 
-# Convert
+# Final input
 final_input = np.array(list(input_dict.values())).reshape(1, -1)
 
 # Scale
 final_scaled = scaler.transform(final_input)
 
 # Predict
-if st.button("Predict Salary"):
-    prediction = model.predict(final_scaled)
-    st.success(f"Predicted Salary: ₹ {prediction[0]:,.2f}")
+prediction = model.predict(final_scaled)
+
+print("\n💰 Predicted Salary:", round(prediction[0], 2))
